@@ -1,429 +1,290 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Onde Vai Esse Resíduo? - Senac</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Onde Vai Esse Resíduo? – Senac</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDDAiVcanOE5b7PekCduenzIAzVAN3oRD8",
-    authDomain: "jogo-residuos-senac-8d415.firebaseapp.com",
-    databaseURL: "https://jogo-residuos-senac-8d415-default-rtdb.firebaseio.com",
-    projectId: "jogo-residuos-senac-8d415",
-    storageBucket: "jogo-residuos-senac-8d415.firebasestorage.app",
-    messagingSenderId: "972901159242",
-    appId: "1:972901159242:web:2d68a3fac82f574490f1b3",
-    measurementId: "G-SMTN2MS3G7"
-  };
+  <!-- Firebase SDK v13 (Módulos JS) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
+    import { getDatabase, ref, set, get, child, onValue, update } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDAiVcanOE5b7PekCduenzIAzVAN3oRD8",
+      authDomain: "jogo-residuos-senac-8d415.firebaseapp.com",
+      databaseURL: "https://jogo-residuos-senac-8d415-default-rtdb.firebaseio.com",
+      projectId: "jogo-residuos-senac-8d415",
+      storageBucket: "jogo-residuos-senac-8d415.firebasestorage.app",
+      messagingSenderId: "972901159242",
+      appId: "1:972901159242:web:2d68a3fac82f574490f1b3",
+      measurementId: "G-SMTN2MS3G7"
+    };
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    }
-                }
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    // Torna as instâncias acessíveis globalmente para a lógica do jogo
+    window.db = db;
+    window.dbRef = ref;
+    window.dbSet = set;
+    window.dbGet = get;
+    window.dbChild = child;
+    window.dbOnValue = onValue;
+    window.dbUpdate = update;
+  </script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fd4f',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
             }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          }
         }
-    </script>
-    <style>
-        .timer-bar {
-            transition: width 1s linear, background-color 0.5s ease;
-        }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    .timer-bar {
+      transition: width 1s linear;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-green-900 via-green-800 to-emerald-950 min-h-screen text-slate-800 font-sans flex flex-col justify-between p-3 md:p-6">
 
-    <!-- CABEÇALHO -->
-    <header class="max-w-4xl w-full mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-4 mb-4 border border-green-200">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-brand-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
-                    ♻️
-                </div>
-                <div>
-                    <h1 class="text-lg md:text-xl font-extrabold text-brand-900 leading-tight">Para Onde Vai Esse Resíduo?</h1>
-                    <p class="text-xs text-brand-700 font-semibold">Senac • Especialistas Ambientais & PNRS</p>
-                </div>
-            </div>
-            <div id="roomBadge" class="hidden bg-brand-100 text-brand-800 font-bold px-3 py-1.5 rounded-lg text-sm border border-brand-300">
-                Sala: <span id="displayRoomCode" class="font-extrabold text-brand-900">------</span>
-            </div>
+<body class="bg-gradient-to-br from-green-900 via-emerald-800 to-teal-900 min-h-screen text-slate-800 font-sans p-3 sm:p-6 flex flex-col justify-between">
+
+  <!-- CABEÇALHO -->
+  <header class="max-w-4xl mx-auto w-full text-center mb-4">
+    <div class="class=flex items-center justify-center gap-2 text-emerald-300 font-semibold text-xs sm:text-sm tracking-wider uppercase mb-1">
+      <i class="fa-solid fa-leaf"></i>
+      <span>Senac • Especialistas Ambientais & PNRS</span>
+    </div>
+    <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+      ♻️ Para Onde Vai Esse Resíduo?
+    </h1>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (TELAS) -->
+  <main class="max-w-md mx-auto w-full flex-1 flex flex-col justify-center">
+
+    <!-- TELA 1: MENU INICIAL -->
+    <section id="screen-home" class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl text-center border border-white/20">
+      <div class="mb-6">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+          <i class="fa-solid fa-gamepad"></i>
         </div>
-    </header>
+        <h2 class="text-xl font-bold text-slate-800">Desafio de Gestão de Resíduos & PNRS</h2>
+        <p class="text-xs text-slate-500 mt-2">Compita em tempo real, responda desafios de descarte correto e teste seus conhecimentos sobre a <strong>Lei nº 12.305/2010</strong>.</p>
+      </div>
 
-    <!-- CONTEÚDO PRINCIPAL (TELAS MUDAM VIA JS) -->
-    <main class="max-w-4xl w-full mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-green-100 flex-1 flex flex-col justify-center">
+      <div class="space-y-4">
+        <button onclick="createRoom()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus-circle"></i> Criar Nova Partida
+        </button>
 
-        <!-- TELA 1: LOBBY DE INÍCIO / MODO DE JOGO -->
-        <section id="screen-welcome" class="space-y-6 text-center">
-            <div class="inline-block bg-brand-100 text-brand-700 p-4 rounded-full text-4xl mb-2 shadow-inner">
-                🌱🎮
-            </div>
-            <h2 class="text-2xl md:text-3xl font-extrabold text-brand-900">Desafio de Gestão de Resíduos & PNRS</h2>
-            <p class="text-gray-600 max-w-lg mx-auto text-sm md:text-base">
-                Compita em tempo real, responda desafios de descarte correto e teste seus conhecimentos sobre a <b>Lei nº 12.305/2010</b>.
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto pt-4">
-                <!-- Botão Criar Sala -->
-                <button onclick="createRoom()" class="bg-brand-600 hover:bg-brand-700 text-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition flex flex-col items-center gap-2 group border-2 border-brand-500">
-                    <i class="fa-solid fa-plus-circle text-3xl group-hover:scale-110 transition"></i>
-                    <span class="font-extrabold text-lg">Criar Nova Partida</span>
-                    <span class="text-xs text-green-100">Gere um código para as duas equipes entrarem</span>
-                </button>
-
-                <!-- Botão Entrar na Sala -->
-                <button onclick="showJoinInput()" class="bg-white hover:bg-brand-50 text-brand-800 p-5 rounded-2xl shadow-md hover:shadow-lg transition flex flex-col items-center gap-2 group border-2 border-brand-200">
-                    <i class="fa-solid fa-right-to-bracket text-3xl text-brand-600 group-hover:scale-110 transition"></i>
-                    <span class="font-extrabold text-lg">Entrar em uma Sala</span>
-                    <span class="text-xs text-gray-500">Digite o código da partida do seu grupo</span>
-                </button>
-            </div>
-
-            <!-- Input Código de Sala (Oculto inicialmente) -->
-            <div id="joinInputArea" class="hidden bg-gray-50 p-6 rounded-2xl max-w-md mx-auto space-y-4 border border-gray-200">
-                <h3 class="font-bold text-gray-700">Digite o Código da Sala:</h3>
-                <input type="text" id="inputRoomCode" placeholder="Ex: ECO726" class="w-full text-center text-2xl font-extrabold tracking-widest uppercase p-3 rounded-xl border-2 border-brand-400 focus:outline-none focus:border-brand-600">
-                <input type="text" id="inputTeamName" placeholder="Nome da sua equipe" class="w-full text-center p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-600">
-                <button onclick="joinRoom()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-bold shadow hover:bg-brand-700">Conectar Equipe</button>
-            </div>
-        </section>
-
-        <!-- TELA 2: SALA DE ESPERA (AGUARDANDO EQUIPES) -->
-        <section id="screen-waiting" class="hidden text-center space-y-6">
-            <div class="bg-brand-50 border border-brand-200 p-6 rounded-2xl max-w-md mx-auto">
-                <p class="text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">Código da Partida</p>
-                <div id="waitingRoomCode" class="text-4xl font-extrabold text-brand-900 tracking-widest my-2">------</div>
-                <p class="text-xs text-gray-500">Compartilhe este código com os capitães das duas equipes!</p>
-            </div>
-
-            <div class="max-w-lg mx-auto">
-                <h3 class="font-bold text-gray-700 mb-4">Equipes Conectadas (2 Máx):</h3>
-                <div class="grid grid-cols-2 gap-4" id="teamSlots">
-                    <div id="slot-1" class="border-2 border-dashed border-gray-300 p-4 rounded-xl flex items-center justify-center text-gray-400 font-medium">Aguardando Equipe 1...</div>
-                    <div id="slot-2" class="border-2 border-dashed border-gray-300 p-4 rounded-xl flex items-center justify-center text-gray-400 font-medium">Aguardando Equipe 2...</div>
-                </div>
-            </div>
-
-            <button id="btnStartGame" onclick="startGame()" class="hidden bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-2xl font-extrabold text-lg shadow-lg hover:shadow-xl transition">
-                🚀 Iniciar Partida Agora
+        <div class="pt-2">
+          <div class="flex gap-2">
+            <input type="text" id="roomCodeInput" placeholder="Código da Sala" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 text-center font-mono font-bold uppercase tracking-widest focus:border-emerald-500 focus:outline-none">
+            <button onclick="joinRoom()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 rounded-xl shadow transition">
+              Entrar
             </button>
-        </section>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <!-- TELA 3: PERGUNTA / TEMPORIZADOR DO JOGO -->
-        <section id="screen-quiz" class="hidden space-y-6">
-            <!-- Barra Superior de Estatísticas -->
-            <div class="grid grid-cols-2 gap-4 pb-2 border-b border-gray-100">
-                <div id="scoreBoxA" class="bg-green-50 p-3 rounded-xl border border-green-200 flex justify-between items-center">
-                    <div>
-                        <span id="nameTeamA" class="font-bold text-sm text-green-900">Equipe A</span>
-                        <p class="text-xs text-gray-500">Status: <span id="statusTeamA" class="font-bold text-orange-500">Pensando...</span></p>
-                    </div>
-                    <span id="scoreA" class="text-2xl font-extrabold text-brand-700">0</span>
-                </div>
-                <div id="scoreBoxB" class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 flex justify-between items-center">
-                    <div>
-                        <span id="nameTeamB" class="font-bold text-sm text-emerald-900">Equipe B</span>
-                        <p class="text-xs text-gray-500">Status: <span id="statusTeamB" class="font-bold text-orange-500">Pensando...</span></p>
-                    </div>
-                    <span id="scoreB" class="text-2xl font-extrabold text-emerald-700">0</span>
-                </div>
-            </div>
+    <!-- TELA 2: LOBBY / SELEÇÃO DE EQUIPE -->
+    <section id="screen-lobby" class="hidden bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl text-center border border-white/20">
+      <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Sala de Espera</span>
+      <h2 class="text-2xl font-black text-slate-800 mt-2 mb-1" id="displayRoomCode">----</h2>
+      <p class="text-xs text-slate-500 mb-6">Compartilhe o código acima para a outra equipe entrar.</p>
 
-            <!-- Indicador de Rodada & Temporizador -->
-            <div class="flex items-center justify-between">
-                <span class="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full" id="roundIndicator">Pergunta 1/5</span>
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-clock text-red-500"></i>
-                    <span id="timerText" class="text-xl font-extrabold text-red-600">15s</span>
-                </div>
-            </div>
+      <div class="mb-6 text-left">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">1. Escolha sua Equipe:</label>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="btn-teamA" onclick="selectTeam('TeamA')" class="p-4 rounded-2xl border-2 border-slate-200 text-center hover:border-emerald-500 transition font-bold text-slate-700 flex flex-col items-center gap-1">
+            <i class="fa-solid fa-users text-emerald-600 text-xl"></i>
+            Equipe A
+          </button>
+          <button id="btn-teamB" onclick="selectTeam('TeamB')" class="p-4 rounded-2xl border-2 border-slate-200 text-center hover:border-emerald-500 transition font-bold text-slate-700 flex flex-col items-center gap-1">
+            <i class="fa-solid fa-users text-teal-600 text-xl"></i>
+            Equipe B
+          </button>
+        </div>
+      </div>
 
-            <!-- Barra de Progresso do Temporizador -->
-            <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-                <div id="timerBar" class="bg-brand-500 h-full w-full timer-bar"></div>
-            </div>
+      <div class="bg-slate-50 p-4 rounded-2xl mb-6 border border-slate-100">
+        <div class="flex justify-between text-xs font-semibold mb-2">
+          <span>Equipe A: <strong id="statusTeamA" class="text-red-500">Vazia</strong></span>
+          <span>Equipe B: <strong id="statusTeamB" class="text-red-500">Vazia</strong></span>
+        </div>
+      </div>
 
-            <!-- Caixas do Desafio -->
-            <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100">
-                <span id="questionCategory" class="text-xs font-extrabold uppercase text-brand-700 tracking-wider">RODADA DE RESÍDUOS</span>
-                <h3 id="questionText" class="text-lg md:text-xl font-bold text-gray-800 mt-1">Carregando pergunta...</h3>
-            </div>
+      <button id="btnStartGame" onclick="startGame()" disabled class="w-full bg-slate-300 text-slate-500 font-bold py-3 rounded-xl transition cursor-not-allowed">
+        Aguardando Equipes...
+      </button>
+    </section>
 
-            <!-- Opções de Resposta -->
-            <div id="optionsContainer" class="grid grid-cols-1 gap-3">
-                <!-- Inseridas via JS -->
-            </div>
+    <!-- TELA 3: JOGO -->
+    <section id="screen-game" class="hidden bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-white/20">
+      <!-- Placar -->
+      <div class="flex justify-between items-center mb-4 bg-slate-100 p-3 rounded-2xl">
+        <div class="text-center">
+          <span class="text-xs font-bold text-slate-500 block">EQUIPE A</span>
+          <span id="scoreTeamA" class="text-2xl font-black text-emerald-600">0</span>
+        </div>
+        <div class="text-center">
+          <span class="text-xs font-bold text-slate-400">VS</span>
+        </div>
+        <div class="text-center">
+          <span class="text-xs font-bold text-slate-500 block">EQUIPE B</span>
+          <span id="scoreTeamB" class="text-2xl font-black text-teal-600">0</span>
+        </div>
+      </div>
 
-            <div id="waitingForOtherMessage" class="hidden text-center text-sm font-bold text-brand-700 bg-brand-50 p-3 rounded-xl border border-brand-200">
-                ⏳ Resposta enviada! Aguardando a outra equipe responder ou o tempo acabar...
-            </div>
-        </section>
+      <!-- Barra de Tempo -->
+      <div class="w-full bg-slate-200 h-2 rounded-full mb-4 overflow-hidden">
+        <div id="timerBar" class="bg-emerald-500 h-full w-full timer-bar"></div>
+      </div>
 
-        <!-- TELA 4: FEEDBACK EDUCATIVO DA RESPOSTA -->
-        <section id="screen-feedback" class="hidden space-y-6 text-center">
-            <div id="feedbackBadge" class="inline-block px-4 py-2 rounded-full font-extrabold text-sm">
-                Gabarito da Rodada
-            </div>
+      <!-- Pergunta -->
+      <div class="mb-6">
+        <span id="questionCategory" class="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md">Categoria</span>
+        <h3 id="questionText" class="text-base font-bold text-slate-800 mt-2">Carregando pergunta...</h3>
+      </div>
 
-            <div class="space-y-2">
-                <h3 id="correctAnswerTitle" class="text-xl font-bold text-gray-800">Resposta Correta:</h3>
-                <p id="correctAnswerText" class="text-lg font-extrabold text-brand-800 bg-brand-50 p-4 rounded-xl border border-brand-200 max-w-lg mx-auto">
-                    -
-                </p>
-            </div>
+      <!-- Opções -->
+      <div id="optionsContainer" class="space-y-2.5"></div>
+    </section>
 
-            <div class="bg-amber-50 border border-amber-200 p-5 rounded-2xl max-w-2xl mx-auto text-left space-y-2">
-                <h4 class="font-extrabold text-amber-900 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark text-amber-600"></i> Explicação PNRS & Legislação:
-                </h4>
-                <p id="explanationText" class="text-sm text-amber-950 leading-relaxed">
-                    -
-                </p>
-            </div>
+  </main>
 
-            <button id="btnNextRound" onclick="nextRound()" class="bg-brand-600 hover:bg-brand-700 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-md transition">
-                Próxima Pergunta ➡️
-            </button>
-        </section>
+  <!-- RODAPÉ -->
+  <footer class="max-w-4xl mx-auto w-full text-center mt-4 text-xs text-emerald-200/80">
+    Desenvolvido para as turmas de Aprendizagem do <strong>Senac</strong>.
+  </footer>
 
-        <!-- TELA 5: TELA FINAL / PÓDIO -->
-        <section id="screen-final" class="hidden text-center space-y-6">
-            <div class="inline-block bg-amber-100 p-4 rounded-full text-5xl">🏆</div>
-            <h2 class="text-3xl font-extrabold text-gray-800">Fim do Desafio!</h2>
-            <p class="text-gray-600">Confira o resultado da disputa entre as equipes do Senac:</p>
+  <!-- LÓGICA DO JOGO -->
+  <script>
+    let currentRoom = null;
+    let myTeam = null;
 
-            <div class="bg-gradient-to-br from-brand-50 to-emerald-50 p-6 rounded-2xl border border-brand-200 max-w-md mx-auto space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                    <span id="finalTeamAName" class="font-bold text-gray-800">Equipe A</span>
-                    <span id="finalTeamAScore" class="text-2xl font-extrabold text-brand-700">0 pts</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span id="finalTeamBName" class="font-bold text-gray-800">Equipe B</span>
-                    <span id="finalTeamBScore" class="text-2xl font-extrabold text-emerald-700">0 pts</span>
-                </div>
-            </div>
+    // Função para trocar de tela
+    function showScreen(screenId) {
+      document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(screenId).classList.remove('hidden');
+    }
 
-            <div id="winnerText" class="text-2xl font-extrabold text-brand-900">
-                🎉 Parabéns à Equipe Vencedora!
-            </div>
+    // Criar Sala
+    function createRoom() {
+      const code = Math.floor(1000 + Math.random() * 9000).toString();
+      currentRoom = code;
+      
+      const roomRef = window.dbRef(window.db, 'rooms/' + code);
+      window.dbSet(roomRef, {
+        status: 'waiting',
+        scoreA: 0,
+        scoreB: 0,
+        teams: { TeamA: false, TeamB: false }
+      }).then(() => {
+        document.getElementById('displayRoomCode').innerText = code;
+        showScreen('screen-lobby');
+        listenRoom();
+      });
+    }
 
-            <button onclick="location.reload()" class="bg-brand-600 text-white font-bold px-6 py-3 rounded-xl shadow hover:bg-brand-700">
-                Jogar Novamente 🔄
-            </button>
-        </section>
+    // Entrar em uma Sala
+    function joinRoom() {
+      const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+      if(!code) return alert("Digite o código da sala!");
 
-    </main>
+      const roomRef = window.dbRef(window.db, 'rooms/' + code);
+      window.dbGet(roomRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          currentRoom = code;
+          document.getElementById('displayRoomCode').innerText = code;
+          showScreen('screen-lobby');
+          listenRoom();
+        } else {
+          alert("Sala não encontrada!");
+        }
+      });
+    }
 
-    <!-- RODAPÉ -->
-    <footer class="text-center text-xs text-white/80 mt-4">
-        Desenvolvido para as turmas de Aprendizagem e Cursos Técnicos do <b>Senac</b>.
-    </footer>
+    // Selecionar Equipe
+    function selectTeam(team) {
+      myTeam = team;
+      const updates = {};
+      updates[`rooms/${currentRoom}/teams/${team}`] = true;
+      window.dbUpdate(window.dbRef(window.db), updates);
 
-    <!-- LÓGICA DO JOGO MULTIPLAYER (JAVASCRIPT) -->
-    <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            databaseURL: "https://para-onde-vai-esse-residuo-default-rtdb.firebaseio.com/"
-        };
+      document.getElementById('btn-teamA').classList.remove('border-emerald-500', 'bg-emerald-50');
+      document.getElementById('btn-teamB').classList.remove('border-teal-500', 'bg-teal-50');
+
+      if(team === 'TeamA') {
+        document.getElementById('btn-teamA').classList.add('border-emerald-500', 'bg-emerald-50');
+      } else {
+        document.getElementById('btn-teamB').classList.add('border-teal-500', 'bg-teal-50');
+      }
+    }
+
+    // Escutar atualizações da sala no Firebase Realtime Database
+    function listenRoom() {
+      const roomRef = window.dbRef(window.db, 'rooms/' + currentRoom);
+      window.dbOnValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if(!data) return;
+
+        // Atualiza status das equipes no lobby
+        document.getElementById('statusTeamA').innerText = data.teams?.TeamA ? "Pronto!" : "Vazia";
+        document.getElementById('statusTeamA').className = data.teams?.TeamA ? "text-emerald-600" : "text-red-500";
         
-        // Inicialização com Fallback (Simulação caso Firebase não conecte)
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch (e) {
-            console.log("Modo Offline/Simulação ativado");
+        document.getElementById('statusTeamB').innerText = data.teams?.TeamB ? "Pronto!" : "Vazia";
+        document.getElementById('statusTeamB').className = data.teams?.TeamB ? "text-teal-600" : "text-red-500";
+
+        // Libera o botão de iniciar se ambos escolherem
+        const btnStart = document.getElementById('btnStartGame');
+        if(data.teams?.TeamA && data.teams?.TeamB) {
+          btnStart.disabled = false;
+          btnStart.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transition";
+          btnStart.innerText = "Iniciar Partida!";
         }
 
-        // PERGUNTAS DO JOGO
-        const questions = [
-            {
-                category: "DESAFIO DOS RESÍDUOS",
-                question: "A empresa substituiu 30 lâmpadas fluorescentes e 10 baterias de nobreaks. Qual a destinação legal adequada?",
-                options: [
-                    "Descarte no lixo comum, pois já estão queimadas.",
-                    "Logística Reversa devidamente entregue a coletores/fabricantes autorizados.",
-                    "Coleta seletiva tradicional de vidros e metais.",
-                    "Queima em incinerador comum local."
-                ],
-                correct: 1,
-                explanation: "Lâmpadas fluorescentes e baterias contêm metais pesados (como mercúrio e chumbo). A Lei nº 12.305/2010 (PNRS) estabelece a obrigatoriedade da Logística Reversa para esses produtos."
-            },
-            {
-                category: "LEGISLAÇÃO & PNRS",
-                question: "O que a Lei nº 12.305/2010 define como Responsabilidade Compartilhada?",
-                options: [
-                    "A responsabilidade total de limpeza é exclusiva das Prefeituras.",
-                    "O consumidor é o único responsável pelo resíduo após a compra.",
-                    "Fabricantes, distribuidores, comerciantes e consumidores têm deveres encadeados na gestão do resíduo.",
-                    "As empresas privadas não têm obrigação sobre o ciclo de vida dos produtos."
-                ],
-                correct: 2,
-                explanation: "A PNRS atribuiu deveres a toda a cadeia (do fabricante ao cidadão), garantindo a minimização do impacto ambiental no pós-consumo."
-            },
-            {
-                category: "CASO PRÁTICO SENAC",
-                question: "Qual a diferença entre 'Resíduo' e 'Rejeito' segundo a PNRS?",
-                options: [
-                    "Resíduo é o lixo orgânico e Rejeito é o reciclável.",
-                    "Resíduo tem possibilidade de reciclagem/reutilização; Rejeito não tem alternativa viável além do aterro sanitário.",
-                    "Não há diferença, ambos têm o mesmo significado técnico.",
-                    "Rejeito é sempre perigoso e Resíduo nunca é perigoso."
-                ],
-                correct: 1,
-                explanation: "A PNRS deixa claro: Resíduo é tudo que ainda tem valor e pode ser reciclado ou compostado. Rejeito é o que sobrou após esgotadas as possibilidades de tratamento."
-            },
-            {
-                category: "DESAFIO DOS RESÍDUOS",
-                question: "Sobras de óleo lubrificante usado em máquinas da empresa devem ser destinadas para:",
-                options: [
-                    "Rerrefino por empresa licenciada (Resíduo Perigoso Classe I).",
-                    "Rede pública de esgoto após diluição em água.",
-                    "Uso direto em hortas corporativas como adubo.",
-                    "Lixo reciclável comum em galões plásticos."
-                ],
-                correct: 0,
-                explanation: "Óleos lubrificantes são resíduos perigosos (Classe I) e necessitam de rerrefino obrigatório por empresas credenciadas pelos órgãos ambientais (CONAMA / SINIR)."
-            },
-            {
-                category: "LEGISLAÇÃO & COMPLIANCE",
-                question: "Qual documento rastreia a geração, transporte e destinação final de resíduos industriais/comerciais no Brasil?",
-                options: [
-                    "Nota Fiscal de Simples Remessa.",
-                    "MTR (Manifesto de Transporte de Resíduos) emitido via SINIR.",
-                    "Apenas um recibo simples de compra e venda.",
-                    "Contrato de prestação de serviços de limpeza."
-                ],
-                correct: 1,
-                explanation: "O MTR é o documento oficial do SINIR (Sistema Nacional de Informações sobre a Gestão de Resíduos Sólidos) obrigatório para rastrear resíduos do gerador até a destinação final."
-            }
-        ];
-
-        // VARIÁVEIS DE ESTADO
-        let currentRoom = null;
-        let myTeam = null; // 'teamA' ou 'teamB'
-        let myTeamName = "";
-        let isHost = false;
-        let timerInterval = null;
-        let timeLeft = 15;
-
-        // NAVEGAÇÃO ENTRE TELAS
-        function showScreen(screenId) {
-            ['screen-welcome', 'screen-waiting', 'screen-quiz', 'screen-feedback', 'screen-final'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(screenId).classList.remove('hidden');
+        // Se a partida for iniciada
+        if(data.status === 'playing') {
+          showScreen('screen-game');
         }
+      });
+    }
 
-        function showJoinInput() {
-            document.getElementById('joinInputArea').classList.toggle('hidden');
-        }
-
-        // CRIAR SALA (HOST)
-        function createRoom() {
-            const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-            currentRoom = roomCode;
-            isHost = true;
-
-            const roomData = {
-                status: 'waiting',
-                currentQuestion: 0,
-                timer: 15,
-                teams: {
-                    teamA: { name: 'Aguardando...', score: 0, currentAnswer: null },
-                    teamB: { name: 'Aguardando...', score: 0, currentAnswer: null }
-                }
-            };
-
-            if (db) {
-                db.ref('rooms/' + roomCode).set(roomData);
-                listenToRoom(roomCode);
-            } else {
-                // Fallback Local
-                simulateLocalGame(roomData);
-            }
-
-            document.getElementById('displayRoomCode').innerText = roomCode;
-            document.getElementById('waitingRoomCode').innerText = roomCode;
-            document.getElementById('roomBadge').classList.remove('hidden');
-            showScreen('screen-waiting');
-        }
-
-        // ENTRAR NA SALA
-        function joinRoom() {
-            const code = document.getElementById('inputRoomCode').value.trim().toUpperCase();
-            const name = document.getElementById('inputTeamName').value.trim();
-
-            if (!code || !name) {
-                alert("Por favor, preencha o código da sala e o nome da sua equipe!");
-                return;
-            }
-
-            currentRoom = code;
-            myTeamName = name;
-
-            if (db) {
-                db.ref('rooms/' + code).once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        alert("Sala não encontrada!");
-                        return;
-                    }
-                    const data = snapshot.val();
-                    if (!data.teams.teamA.joined) {
-                        myTeam = 'teamA';
-                        db.ref(`rooms/${code}/teams/teamA`).update({ name: name, joined: true });
-                    } else if (!data.teams.teamB.joined) {
-                        myTeam = 'teamB';
-                        db.ref(`rooms/${code}/teams/teamB`).update({ name: name, joined: true });
-                    } else {
-                        alert("A sala já está cheia com duas equipes!");
-                        return;
-                    }
-
-                    document.getElementById('displayRoomCode').innerText = code;
-                    document.getElementById('roomBadge').classList.remove('hidden');
-                    listenToRoom(code);
-                    showScreen('screen-waiting');
-                });
-            }
-        }
-
-        // ESCUTAR MUDANÇAS NA SALA
-        function listenToRoom(code) {
-            if (!db) return;
-
-            db.ref('rooms
+    // Iniciar Jogo
+    function startGame() {
+      const updates = {};
+      updates[`rooms/${currentRoom}/status`] = 'playing';
+      window.dbUpdate(window.dbRef(window.db), updates);
+    }
+  </script>
+</body>
+</html>
