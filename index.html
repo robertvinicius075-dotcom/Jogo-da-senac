@@ -10,8 +10,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Firebase App & Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDDAiVcanOE5b7PekCduenzIAzVAN3oRD8",
+    authDomain: "jogo-residuos-senac-8d415.firebaseapp.com",
+    databaseURL: "https://jogo-residuos-senac-8d415-default-rtdb.firebaseio.com",
+    projectId: "jogo-residuos-senac-8d415",
+    storageBucket: "jogo-residuos-senac-8d415.firebasestorage.app",
+    messagingSenderId: "972901159242",
+    appId: "1:972901159242:web:2d68a3fac82f574490f1b3",
+    measurementId: "G-SMTN2MS3G7"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
